@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book • Nexus Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container form-container">
+        <h2>📚 Add New Book</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('add_book') }}" method="POST" class="stack-form">
+            <div class="input-group">
+                <label>Title *</label>
+                <input type="text" name="title" required placeholder="e.g. The Alchemist">
+            </div>
+
+            <div class="input-group">
+                <label>Author *</label>
+                <input type="text" name="author" required placeholder="e.g. Paulo Coelho">
+            </div>
+
+            <div class="input-group">
+                <label>Cover Image URL (Optional)</label>
+                <input type="url" name="image_url" placeholder="https://example.com/book-cover.jpg">
+                <small class="hint">Leave empty for auto-generated cover.</small>
+            </div>
+
+            <button type="submit" class="btn-primary full-width">Save Book</button>
+            <a href="{{ url_for('index') }}" class="btn-secondary full-width mt-2">Cancel</a>
+        </form>
+    </div>
+</body>
+
+</html>

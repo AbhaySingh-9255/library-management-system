@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Library Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header class="dashboard-header">
+            <div class="logo-area">
+                <h1>📚 Nexus Library</h1>
+                <p>AI-Assisted Management System</p>
+            </div>
+            <a href="{{ url_for('add_book') }}" class="btn-primary">+ Add Book</a>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-stack">
+            {% for category, message in messages %}
+            <div class="toast toast-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Search & Filters -->
+        <section class="controls-section">
+            <form action="{{ url_for('index') }}" method="GET" class="search-bar">
+                <input type="text" name="search" placeholder="Search by title or author..." value="{{ search_query }}">
+                <button type="submit" class="btn-search">🔍</button>
+            </form>
+
+            <div class="filter-tabs">
+                <a href="?filter=all&search={{ search_query }}"
+                    class="tab {{ 'active' if current_filter == 'all' }}">All</a>
+                <a href="?filter=available&search={{ search_query }}"
+                    class="tab {{ 'active' if current_filter == 'available' }}">Available</a>
+                <a href="?filter=issued&search={{ search_query }}"
+                    class="tab {{ 'active' if current_filter == 'issued' }}">Issued</a>
+                <a href="?filter=overdue&search={{ search_query }}"
+                    class="tab {{ 'active' if current_filter == 'overdue' }}">Overdue</a>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-val">{{ total }}</span>
+                <span class="stat-label">Total Books</span>
+            </div>
+            <div class="stat-card stat-green">
+                <span class="stat-val">{{ available }}</span>
+                <span class="stat-label">Available</span>
+            </div>
+            <div class="stat-card stat-blue">
+                <span class="stat-val">{{ issued }}</span>
+                <span class="stat-label">Issued</span>
+            </div>
+            <div class="stat-card stat-red">
+                <span class="stat-val">{{ overdue }}</span>
+                <span class="stat-label">Overdue</span>
+            </div>
+        </section>
+
+        <!-- Book Grid -->
+        <section class="book-grid">
+            {% for book in books %}
+            <article
+                class="book-card {{ 'is-overdue' if book.is_overdue() else ('is-issued' if book.issued else 'is-available') }}">
+
+                <!-- Cover Image -->
+                <div class="card-cover">
+                    <img src="{{ book.get_display_image() }}" alt="{{ book.title }} Cover">
+
+                    <!-- Status Badge Overlay -->
+                    <div class="status-badge">
+                        {% if book.is_overdue() %}
+                        <span class="badge-red">⚠ Overdue</span>
+                        {% elif book.issued %}
+                        <span class="badge-blue">📖 Issued</span>
+                        {% else %}
+                        <span class="badge-green">✔ Available</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="card-details">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">by {{ book.author }}</p>
+
+                    <div class="meta-info">
+                        {% if book.due_date %}
+                        <small>Due: {{ book.due_date.strftime('%d %b %Y') }}</small>
+                        {% endif %}
+                        {% if book.issued %}
+                        <small class="fine-text">Fine: ₹{{ book.calculate_fine() }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-actions">
+                    {% if not book.issued %}
+                    <form action="{{ url_for('issue_book', id=book.id) }}" method="POST" class="action-form">
+                        <input type="hidden" name="days" value="14">
+                        <input type="hidden" name="fine_per_day" value="5">
+                        <button type="submit" class="btn-action btn-issue">Issue</button>
+                    </form>
+                    {% else %}
+                    <form action="{{ url_for('return_book', id=book.id) }}" method="POST" class="action-form">
+                        <button type="submit" class="btn-action btn-return">Return</button>
+                    </form>
+                    {% endif %}
+
+                    <form action="{{ url_for('delete_book', id=book.id) }}" method="POST" class="action-form"
+                        onsubmit="return confirm('Delete this book?');">
+                        <button type="submit" class="btn-icon-delete">🗑️</button>
+                    </form>
+                </div>
+            </article>
+            {% else %}
+            <div class="empty-state">
+                <h3>No books found</h3>
+                <p>Try adjusting your search or add a new book.</p>
+                <a href="{{ url_for('add_book') }}" class="btn-primary">Add First Book</a>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+</body>
+
+</html>

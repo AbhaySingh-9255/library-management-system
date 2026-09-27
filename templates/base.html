@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nexus Library{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Animated Background Mesh -->
+    <div class="bg-mesh"></div>
+    <div class="floating-icons">
+        <span>📚</span><span>💡</span><span>🔍</span><span>🏛️</span>
+    </div>
+
+    <nav class="navbar glass-nav">
+        <div class="logo">
+            <span class="logo-icon">📖</span>
+            <h1>NEXUS<span class="accent">LIBRARY</span></h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}"
+                    class="{% if request.endpoint == 'index' %}active{% endif %}">Dashboard</a></li>
+            <li><a href="{{ url_for('add_book') }}" class="{% if request.endpoint == 'add_book' %}active{% endif %}">Add
+                    Book</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="toast toast-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="glass-footer">
+        <p>&copy; {{ current_year }} Nexus Library OS • Designed by Abhay Singh</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+
+</html>

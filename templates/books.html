@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Books</h2>
+
+<form method="POST">
+    <input name="title" placeholder="Title">
+    <input name="author" placeholder="Author">
+    <input name="category" placeholder="Category">
+    <input name="isbn" placeholder="ISBN">
+    <input name="quantity" placeholder="Qty">
+    <button>Add Book</button>
+</form>
+
+<table>
+<tr>
+<th>Title</th><th>Available</th><th>Action</th>
+</tr>
+
+{% for b in books %}
+<tr>
+<td>{{b[1]}}</td>
+<td>{{b[6]}}</td>
+<td>
+    {% if b[6] > 0 %}
+        <a class="green" href="/issue/{{b[0]}}">Issue</a>
+    {% else %}
+        <span class="red">Not Available</span>
+    {% endif %}
+</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}
